@@ -6,6 +6,8 @@ This project implements an intelligent sound recognition system designed to clas
 
 ## Project Overview
 The goal of this project is to process raw audio data into visual representations (Mel-Spectrograms) and train various machine learning models to identify environmental sounds. This system can be used for noise pollution monitoring, smart city safety applications, or automated sound indexing.
+   ![Mel Spectrograms](images/mel_spectrograms.png)
+   *Figure 1: Mel-Spectrogram representations of 'Gunshot', 'Siren', and 'Engine Idling'.*
 
 ### UrbanSound8K Classes:
 * Air Conditioner, Car Horn, Children Playing, Dog Bark, Drilling, Engine Idling, Gun Shot, Jackhammer, Siren, and Street Music.
@@ -21,6 +23,60 @@ The goal of this project is to process raw audio data into visual representation
 ---
 
 ## Pipeline & Features
+
+
+
+```mermaid
+graph TD
+    %% Main Input
+    Start["Raw Audio Input<br/>(.wav files)"] --> Preproc["Librosa Feature Extraction<br/>(Mel-Spectrograms)"]
+    Preproc --> Split{"Data Preprocessing"}
+
+    %% Branch 1: CNN
+    Split -->|Reshape to 3D<br/>H, W, 1| CNN_Input["CNN Path"]
+    
+    subgraph CNN_Model [CNN Model Spatial]
+        CNN_Input --> Conv1["Conv2D + MaxPool"]
+        Conv1 --> BN1["Batch Normalization"]
+        BN1 --> Conv2["Conv2D + MaxPool"]
+        Conv2 --> BN2["Batch Normalization"]
+        BN2 --> CNN_Dense["Flatten + Dense"]
+        CNN_Dense --> CNN_Drop["Dropout (0.3)"]
+        CNN_Drop --> CNN_Out["Softmax Output"]
+    end
+
+    %% Branch 2: LSTM
+    Split -->|Reshape to Sequence<br/>173 steps, 128 cols| LSTM_Input["LSTM Path"]
+    
+    subgraph LSTM_Model [LSTM Model Temporal]
+        LSTM_Input --> LSTM1["LSTM (128 units)<br/>Return Seq=True"]
+        LSTM1 --> Drop1["Dropout (0.3)"]
+        Drop1 --> LSTM2["LSTM (64 units)"]
+        LSTM2 --> LSTM_Dense["Dense (64 units)"]
+        LSTM_Dense --> Drop2["Dropout (0.3)"]
+        Drop2 --> LSTM_Out["Softmax Output"]
+    end
+
+    %% Branch 3: Random Forest
+    Split -->|Flatten to 1D Vector<br/>1 x N| RF_Input["Random Forest Path"]
+    
+    subgraph RF_Model [Random Forest Statistical]
+        RF_Input --> Trees["Ensemble of 100 Trees"]
+        Trees --> Vote["Majority Voting"]
+        Vote --> RF_Out["Class Prediction"]
+    end
+
+    %% Comparison Node
+    CNN_Out -.-> Compare["Performance Comparison"]
+    LSTM_Out -.-> Compare
+    RF_Out -.-> Compare
+
+    style Start color: #000000, fill:#f9f,stroke:#333,stroke-width:2px
+    style Compare color : #000000, fill:#ff9,stroke:#333,stroke-dasharray: 5 5
+    style Split color : #000000, fill:#bbf,stroke:#333
+```
+
+
 
 ### 1. Exploratory Data Analysis (EDA)
 * **Class Distribution:** Analyzed the frequency of each audio class to ensure balanced training.
@@ -60,7 +116,7 @@ The dataset should be placed in the following directory structure:
 
 1. **Clone the repository:**
    ```bash
-   git clone [https://github.com/pratyaksha-jha/urban-sound-pollution-classifier.git](https://github.com/pratyaksha-jha/urban-sound-pollution-classifier.git)
+   git clone https://github.com/pratyaksha-jha/urban-sound-pollution-classifier.git
    ```
 2. **Install Dependencies:**
   ```bash
@@ -79,7 +135,7 @@ To replicate this project, follow these steps in order:
     * **CNN:** Best for spatial features.
     * **LSTM:** Best for temporal sequences.
     * **Random Forest:** Best for a fast, non-deep-learning baseline.
-4.  **Evaluation:** Call the `evaluate_model()` function. This will automatically generate a confusion matrix and a detailed classification report.
+3.  **Evaluation:** Call the `evaluate_model()` function. This will automatically generate a confusion matrix and a detailed classification report.
 
 ---
 
@@ -90,6 +146,8 @@ The models are evaluated based on their ability to generalize to unseen "folds" 
 * **Confusion Matrix:** Crucial for this dataset to identify which sounds (e.g., "drilling" vs. "jackhammer") have similar frequency signatures.
 * **Classification Report:** Provides detailed **Precision**, **Recall**, and **F1-Score** for every urban class.
 
+  ![Confusion Matrix LSTM](images/LSTM_confusion_matrix.png)
+*Figure 2: Confusion Matrix showing LSTM model performance across all 10 classes.*
 ## Model Performance Comparison
 
 The table below provides a comparative analysis of the different architectures used in this project. The models were evaluated based on their ability to generalize to unseen data while monitoring for signs of overfitting.
