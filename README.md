@@ -56,7 +56,20 @@ The dataset should be placed in the following directory structure:
     ├── fold2/
     ...
 ```
+## Installation & Setup
 
+1. **Clone the repository:**
+   ```bash
+   git clone [https://github.com/pratyaksha-jha/urban-sound-pollution-classifier.git](https://github.com/pratyaksha-jha/urban-sound-pollution-classifier.git)
+   ```
+2. **Install Dependencies:**
+  ```bash
+   pip install numpy pandas matplotlib seaborn tensorflow sklearn librosa h5py joblib tqdm
+```
+3. **Download Dataset:**
+    Place the UrbanSound8K folder in the /input/ directory.
+
+---
 ##  Execution Steps
 
 To replicate this project, follow these steps in order:
@@ -77,24 +90,27 @@ The models are evaluated based on their ability to generalize to unseen "folds" 
 * **Confusion Matrix:** Crucial for this dataset to identify which sounds (e.g., "drilling" vs. "jackhammer") have similar frequency signatures.
 * **Classification Report:** Provides detailed **Precision**, **Recall**, and **F1-Score** for every urban class.
 
+## Model Performance Comparison
+
+The table below provides a comparative analysis of the different architectures used in this project. The models were evaluated based on their ability to generalize to unseen data while monitoring for signs of overfitting.
+
+| Model | Training Acc | Test Acc | Precision | Recall |
+| :--- | :---: | :---: | :---: | :---: |
+| **CNN** | 84.5% | 74.8% | 0.77 | 0.75 |
+| **LSTM** | 92.5% | **81.8%** | **0.82** | **0.82** |
+| **Random Forest** | **99.0%** | 72.2% | 0.73 | 0.72 |
+
+### Key Takeaways
+
+* **Top Performer:** The **LSTM** model outperformed the others on the test set, achieving the highest accuracy and a balanced F1-score (inferred from high precision/recall).
+* **Overfitting:** The **Random Forest** model shows significant overfitting, with a nearly perfect training score but the lowest performance on test data.
+* **Stability:** The **CNN** offers a moderate balance but lacks the sequence-processing advantages seen in the LSTM results.
+
+---
 
 
 ---
 
-## Installation & Setup
-
-1. **Clone the repository:**
-   ```bash
-   git clone [https://github.com/pratyaksha-jha/urban-sound-pollution-classifier.git](https://github.com/pratyaksha-jha/urban-sound-pollution-classifier.git)
-   ```
-2. **Install Dependencies:**
-  ```bash
-   pip install numpy pandas matplotlib seaborn tensorflow sklearn librosa h5py joblib tqdm
-```
-3. **Download Dataset:**
-    Place the UrbanSound8K folder in the /input/ directory.
-
----
 
 ##  Author
 
